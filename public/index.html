@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Live Location Tracker</title>
@@ -15,24 +16,68 @@ font-family:Arial;
 
 body{
 height:100vh;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+display:flex;
+flex-direction:column;
+}
+
+/* Header */
+
+header{
+text-align:center;
+padding:40px 20px;
+}
+
+header h1{
+font-size:40px;
+margin-bottom:10px;
+}
+
+header p{
+color:#cbd5f5;
+font-size:18px;
+}
+
+/* Main Container */
+
+.container{
+flex:1;
 display:flex;
 justify-content:center;
 align-items:center;
-background:linear-gradient(135deg,#0f172a,#1e293b);
-color:white;
+gap:60px;
+padding:20px;
 }
 
-.container{
+/* Info Section */
+
+.info{
+max-width:400px;
+}
+
+.info h2{
+margin-bottom:15px;
+}
+
+.info ul{
+line-height:28px;
+color:#cbd5f5;
+}
+
+/* Card */
+
+.card{
 background:#1e293b;
 padding:40px;
 border-radius:12px;
-text-align:center;
-width:400px;
+width:350px;
 box-shadow:0px 10px 30px rgba(0,0,0,0.4);
 }
 
-h1{
+.card h3{
 margin-bottom:20px;
+text-align:center;
 }
 
 input{
@@ -62,6 +107,16 @@ background:#2563eb;
 margin-top:15px;
 font-size:14px;
 color:#94a3b8;
+text-align:center;
+}
+
+/* Footer */
+
+footer{
+text-align:center;
+padding:15px;
+background:#020617;
+color:#94a3b8;
 }
 
 </style>
@@ -70,17 +125,51 @@ color:#94a3b8;
 
 <body>
 
+<header>
+
+<h1>📍 Real-Time Location Tracker</h1>
+
+<p>Share your live location and track users on an interactive dashboard</p>
+
+</header>
+
 <div class="container">
 
-<h1>📍 Live Location Tracker</h1>
+<div class="info">
+
+<h2>Features</h2>
+
+<ul>
+<li>📡 Real-time GPS tracking</li>
+<li>🗺 Live location on map</li>
+<li>👥 Multi-user tracking</li>
+<li>📍 Route visualization</li>
+<li>🚗 Smooth vehicle movement</li>
+</ul>
+
+</div>
+
+<div class="card">
+
+<h3>Start Sharing Location</h3>
 
 <input id="name" placeholder="Enter your name">
 
-<button onclick="startTracking()">Start Sharing Location</button>
+<button onclick="startTracking()">Start Tracking</button>
 
-<div class="status" id="status">Waiting to start...</div>
+<div class="status" id="status">
+Waiting to start...
+</div>
 
 </div>
+
+</div>
+
+<footer>
+
+Real-Time Tracking System • Built with Node.js, Socket.io & Leaflet
+
+</footer>
 
 <script src="/socket.io/socket.io.js"></script>
 
