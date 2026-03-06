@@ -8,37 +8,71 @@
 
 <style>
 
-body{
+*{
 margin:0;
+padding:0;
+box-sizing:border-box;
 font-family:Arial;
+}
+
+body{
 display:flex;
 height:100vh;
+background:#0f172a;
+color:white;
 }
 
 #sidebar{
-width:300px;
+width:280px;
 background:#1e293b;
-color:white;
 padding:20px;
-overflow:auto;
+display:flex;
+flex-direction:column;
 }
 
 #sidebar h2{
-margin-top:0;
+text-align:center;
+margin-bottom:20px;
+}
+
+.stat{
+background:#334155;
+padding:10px;
+border-radius:8px;
+margin-bottom:15px;
+text-align:center;
+}
+
+#userList{
+flex:1;
+overflow:auto;
 }
 
 .user{
-padding:10px;
-border-bottom:1px solid #444;
+padding:12px;
+border-bottom:1px solid #475569;
 cursor:pointer;
 }
 
 .user:hover{
-background:#334155;
+background:#475569;
 }
 
 #map{
 flex:1;
+}
+
+.topbar{
+position:absolute;
+top:10px;
+left:300px;
+background:white;
+color:black;
+padding:10px 20px;
+border-radius:8px;
+font-weight:bold;
+box-shadow:0px 5px 10px rgba(0,0,0,0.2);
+z-index:1000;
 }
 
 </style>
@@ -48,11 +82,20 @@ flex:1;
 <body>
 
 <div id="sidebar">
-<h2>Active Users</h2>
+
+<h2>GPS Tracking</h2>
+
+<div class="stat">
+Active Users: <span id="activeUsers">0</span>
+</div>
+
 <div id="userList"></div>
+
 </div>
 
 <div id="map"></div>
+
+<div class="topbar">Real-Time Tracking Dashboard</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -69,47 +112,9 @@ attribution:"OpenStreetMap"
 
 const markers = {};
 const users = {};
-const paths = {};
-const polylines = {};
-
-const lastLocation = {};
-const lastTime = {};
 
 const userList = document.getElementById("userList");
-
-
-const carIcon = L.icon({
-iconUrl:"https://cdn-icons-png.flaticon.com/512/744/744465.png",
-iconSize:[35,35],
-iconAnchor:[17,17]
-});
-
-
-function randomColor(){
-return "#" + Math.floor(Math.random()*16777215).toString(16);
-}
-
-
-function calculateDistance(lat1,lon1,lat2,lon2){
-
-const R = 6371;
-
-const dLat = (lat2-lat1)*Math.PI/180;
-const dLon = (lon2-lon1)*Math.PI/180;
-
-const a =
-Math.sin(dLat/2)*Math.sin(dLat/2) +
-Math.cos(lat1*Math.PI/180) *
-Math.cos(lat2*Math.PI/180) *
-Math.sin(dLon/2) *
-Math.sin(dLon/2);
-
-const c = 2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-
-return R*c;
-
-}
-
+const activeUsers = document.getElementById("activeUsers");
 
 socket.on("receive-location",(data)=>{
 
@@ -119,84 +124,32 @@ const latlng = [latitude,longitude];
 
 users[id] = {name,latlng};
 
-
-// Marker update
 if(markers[id]){
-
 markers[id].setLatLng(latlng);
-
 }else{
 
-markers[id] = L.marker(latlng,{icon:carIcon})
+markers[id] = L.marker(latlng)
 .addTo(map)
 .bindTooltip(name,{
 permanent:true,
 direction:"top"
-})
-.openTooltip();
+});
 
 }
-
-
-// ---- ROUTE PATH ----
-
-if(!paths[id]){
-paths[id] = [];
-}
-
-paths[id].push(latlng);
-
-if(polylines[id]){
-
-polylines[id].setLatLngs(paths[id]);
-
-}else{
-
-polylines[id] = L.polyline(paths[id],{
-color:randomColor(),
-weight:4
-}).addTo(map);
-
-}
-
-
-// ---- SPEED CALCULATION ----
-
-const now = Date.now();
-
-if(lastLocation[id]){
-
-const dist = calculateDistance(
-lastLocation[id][0],
-lastLocation[id][1],
-latitude,
-longitude
-);
-
-const timeDiff = (now - lastTime[id]) / 3600000;
-
-const speed = dist / timeDiff;
-
-markers[id].bindPopup(
-name + "<br>Speed: " + speed.toFixed(2) + " km/h"
-);
-
-}
-
-lastLocation[id] = [latitude,longitude];
-lastTime[id] = now;
-
 
 updateUserList();
 
 });
 
-
 function updateUserList(){
 
 userList.innerHTML="";
 
-for(const id in users){
+const ids = Object.keys(users);
+
+activeUsers.innerText = ids.length;
+
+ids.forEach(id => {
 
 const userDiv = document.createElement("div");
 
@@ -209,7 +162,7 @@ map.setView(users[id].latlng,16);
 
 userList.appendChild(userDiv);
 
-}
+});
 
 }
 
