@@ -112,9 +112,24 @@ attribution:"OpenStreetMap"
 
 const markers = {};
 const users = {};
+const paths = {};
+const polylines = {};
 
 const userList = document.getElementById("userList");
 const activeUsers = document.getElementById("activeUsers");
+
+
+const carIcon = L.icon({
+iconUrl:"https://cdn-icons-png.flaticon.com/512/744/744465.png",
+iconSize:[35,35],
+iconAnchor:[17,17]
+});
+
+
+function randomColor(){
+return "#" + Math.floor(Math.random()*16777215).toString(16);
+}
+
 
 socket.on("receive-location",(data)=>{
 
@@ -124,11 +139,12 @@ const latlng = [latitude,longitude];
 
 users[id] = {name,latlng};
 
+
 if(markers[id]){
 markers[id].setLatLng(latlng);
 }else{
 
-markers[id] = L.marker(latlng)
+markers[id] = L.marker(latlng,{icon:carIcon})
 .addTo(map)
 .bindTooltip(name,{
 permanent:true,
@@ -137,9 +153,29 @@ direction:"top"
 
 }
 
+
+if(!paths[id]){
+paths[id] = [];
+}
+
+paths[id].push(latlng);
+
+
+if(polylines[id]){
+polylines[id].setLatLngs(paths[id]);
+}else{
+
+polylines[id] = L.polyline(paths[id],{
+color: randomColor(),
+weight:4
+}).addTo(map);
+
+}
+
 updateUserList();
 
 });
+
 
 function updateUserList(){
 
